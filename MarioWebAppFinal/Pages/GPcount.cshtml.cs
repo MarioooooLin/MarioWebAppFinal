@@ -35,17 +35,21 @@ namespace MarioWebAppFinal.Pages
             }
         }
 
-        //public IActionResult OnPostGetCost()
-        //{
-        //    var conn = new DapperConnections.ConnectionOptions();
-        //    Configuration.GetSection(DapperConnections.ConnectionOptions.Position).Bind(conn);
-        //    var sql = "select * from ProductCost";
-        //    using (var con = new SqlConnection(conn.RookieServerContext))
-        //    {
-        //        var result = con.Query<string>(sql).ToList();
-        //        return new JsonResult(result);
-        //    }
-        //}
+        public IActionResult OnPostGetPrice(IFormCollection collection)
+        {
+            var modelName= collection["modelName"].ToString();
+            var conn = new DapperConnections.ConnectionOptions();
+            Configuration.GetSection(DapperConnections.ConnectionOptions.Position).Bind(conn);
+            var sql = "select Price from ProductData where ModelName=@name";
+            using (var con = new SqlConnection(conn.RookieServerContext))
+            {
+                var result = con.Query<string>(sql, new
+                {
+                    name=modelName
+                }).ToList();
+                return new JsonResult(result);
+            }
+        }
 
     }
 }

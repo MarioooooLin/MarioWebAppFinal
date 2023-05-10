@@ -33,9 +33,9 @@
                                        name="price_option"
                                        id="price_option_fixed"
                                        value="true"
-                                       class="form-check-input" v-model="selectProduct.isChecked" checked />
+                                       class="form-check-input"  checked />
                                 <!-- <label class="form-check-label" for="price_option_fixed">Fixed Price</label> -->
-                                <input type="number" name="count" id="sellingPrice"  v-model="selectProduct.Price" min="1" step=".01" />
+                                <input type="number" name="count" id="sellingPrice" v-model="selectProduct.Price"  min="1" step=".01" />
                             </div>
                         </td>
                         <td>
@@ -45,7 +45,7 @@
                                        id="price_option_percent"
                                        value="true"
                                        class="form-check-input"
-                                       v-model="selectProduct.isChecked" />
+                                        />
                                 <!-- <label class="form-check-label" for="price_option_percent">Percentage</label> -->
                                 <input type="number" name="count" id="targetGP" :value="selectProduct.targetGP" v-model="selectProduct.targetGP" min="1" step=".01" />
                                 <span>%</span>
@@ -118,7 +118,7 @@
             <tbody>
                 <tr v-for="(p,index) in productList" :key="p">
                     <td><label>{{p.ModelName}}</label></td>
-                    <td><input type="checkbox" name="" id="" @@click="toggle" /><input type="number" v-model="p.qty" :disabled="p.isChecked" /><button>Change</button></td>
+                    <td><input type="checkbox" name="" id=""  /><input type="number" v-model="p.qty" :disabled="p.isChecked" /><button>Change</button></td>
                     <td><button class="" data-bs-toggle="modal" data-bs-target="#productModal">View</button></td>
                     <!-- Modal -->
                     <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -225,13 +225,13 @@
                     ModelGroup:"",
                     ModelName:"",
                     Watt:"",
-                    Price:"",
-                    Cost:0,
+                    Price:1,
+                    Cost:"",
                     qty: "",
                     targetGP: "",
                     isChecked: true
                 },
-                result: "",
+                //result: "",
             }
         },
         async created() {
@@ -243,6 +243,13 @@
             //this.localRouter = window.location.pathname;
 
             this.getData();
+        },
+        watch:{
+            'selectProduct.ModelName'(n,o){
+                if(n!=""){
+                    this.getPrice();
+                }
+            }
         },
         methods: {
             removeProduct(index) {
@@ -258,7 +265,7 @@
             },
             add() {
                 var _this = this
-                let newSelect = _this.selectProduct
+                var newSelect = JSON.parse(JSON.stringify(_this.selectProduct));
                 _this.productList.push(newSelect)
             },
             filter(value) {
@@ -266,8 +273,24 @@
                 realVal = parseFloat(value).toFixed(2)
                 return realVal;
             },
-            toggle() {
-                this.selectProduct.isChecked = !this.selectProduct.isChecked
+            //toggle() {
+            //    this.productList.isChecked = !this.productList.isChecked
+            //}
+            async getPrice(){
+                var _this = this;
+                let fd=new FormData();
+                fd.append("modelName", this.selectProduct.ModelName)
+                let result = await $axiosPost(this.localRouter + "?handler=GetPrice",fd);
+                console.log(typeof result)
+                //var newRES=JSON.stringify(result)
+                //console.log(typeof newRES)
+                //var new1=Number(newRES)
+                //console.log(typeof new1)
+
+                this.selectProduct.Price=result
+                //_this.product.model=result.Model
+                //this.products = result;
+
             }
 
         },
