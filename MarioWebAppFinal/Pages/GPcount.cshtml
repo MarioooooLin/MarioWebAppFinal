@@ -1,0 +1,280 @@
+﻿@page
+@model MarioWebAppFinal.Pages.GPcountModel
+@{
+    ViewData["Title"] = "GPcount";
+}
+<div id="root">
+    <div class="container mt-3 mr-3">
+        <h1>GP Count</h1>
+        <form>
+            <table class="table table-bordered mt-3">
+                <thead>
+                    <tr>
+                        <th class="table-secondary">Model</th>
+                        <th class="table-secondary">Q'ty</th>
+                        <th class="table-secondary">Selling Price</th>
+                        <th class="table-secondary">Target GP%</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td>
+                            <select name="product" id="product" v-model="selectProduct.ModelName">
+                                <option :value="product.ModelName" v-for="product in products">{{product.ModelName}}</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input type="number" min="1" v-model="selectProduct.qty" />
+                        </td>
+                        <td>
+                            <div class="form-check">
+                                <input type="radio"
+                                       name="price_option"
+                                       id="price_option_fixed"
+                                       value="true"
+                                       class="form-check-input" v-model="selectProduct.isChecked" checked />
+                                <!-- <label class="form-check-label" for="price_option_fixed">Fixed Price</label> -->
+                                <input type="number" name="count" id="sellingPrice"  v-model="selectProduct.Price" min="1" step=".01" />
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-check">
+                                <input type="radio"
+                                       name="price_option"
+                                       id="price_option_percent"
+                                       value="true"
+                                       class="form-check-input"
+                                       v-model="selectProduct.isChecked" />
+                                <!-- <label class="form-check-label" for="price_option_percent">Percentage</label> -->
+                                <input type="number" name="count" id="targetGP" :value="selectProduct.targetGP" v-model="selectProduct.targetGP" min="1" step=".01" />
+                                <span>%</span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+
+                <!-- <tbody>
+                    <tr>
+                        <td>
+                            <select name="" id="">
+                                <option value="">{{1}}</option>
+                                <option value="">{{2}}</option>
+                            </select>
+                        </td>
+                        <td><input type="number" min="1" /></td>
+                        <div class="form-check">
+                            <td>
+                                <input
+                                    type="radio"
+                                    name=""
+                                    id=""
+                                    class="form-check-input"
+                                    name="Price"
+                                    id="Price"
+                                /><input type="number" for="Price" />
+                            </td>
+                        </div>
+                        <div class="form-check">
+                            <td>
+                                <input type="radio" name="" id="" name="GP" id="GP" /><input
+                                    type="number"
+                                    class="form-check-input"
+                                    for="GP"
+                                /><span>%</span>
+                            </td>
+                        </div>
+                    </tr>
+                </tbody> -->
+            </table>
+            <button type="button" class="" @@click="add">Add</button>
+        </form>
+        <hr />
+
+        @*Product GP*@
+
+        <table class="table table-bordered caption-top mr-3">
+            <caption class="table-info">
+                Product GP
+            </caption>
+            <thead>
+                <tr>
+                    <th rowspan="2" class="table-secondary">Model</th>
+                    <th rowspan="2" class="table-secondary">Q'ty</th>
+                    <th rowspan="2" class="table-secondary">View</th>
+                    <th rowspan="2" class="table-secondary">Selling Price</th>
+                    <th rowspan="2" class="table-secondary">Product Cost</th>
+                    <th rowspan="2" class="table-secondary">Unit GP</th>
+                    <th rowspan="2" class="table-secondary">GP%</th>
+                    <th colspan="3" class="table-secondary">Total</th>
+                    <th rowspan="2" class="table-secondary">Delete</th>
+                </tr>
+                <tr>
+                    <th class="table-secondary">Revenue</th>
+                    <th class="table-secondary">Cost</th>
+                    <th class="table-secondary">GP</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(p,index) in productList" :key="p">
+                    <td><label>{{p.ModelName}}</label></td>
+                    <td><input type="checkbox" name="" id="" @@click="toggle" /><input type="number" v-model="p.qty" :disabled="p.isChecked" /><button>Change</button></td>
+                    <td><button class="" data-bs-toggle="modal" data-bs-target="#productModal">View</button></td>
+                    <!-- Modal -->
+                    <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    ...
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @*Above is Modal*@
+                    <td>{{p.Cost/(1-p.targetGP/100)}}</td>
+                    <td>{{p.Cost}}</td>
+                    <td>{{p.Price-p.Cost}}</td>
+                    <td>{{filter((p.Price-p.Cost)/p.Price*100)}}%</td>
+                    <td>{{p.qty*p.Price}}</td>
+                    <td>{{p.qty*p.Cost}}</td>
+                    <td>{{(p.Price-p.Cost)*p.qty}}</td>
+                    <td><button @@click="removeProduct(index)">Delete</button></td>
+                </tr>
+            </tbody>
+        </table>
+        <hr />
+
+        @*Project GP*@
+
+        <table class="table table-bordered caption-top">
+            <caption>
+                Project GP
+            </caption>
+            <thead>
+                <tr>
+                    <th class="table-secondary">Total Revenue</th>
+                    <th class="table-secondary">Total Cost</th>
+                    <th class="table-secondary">Total GP</th>
+                    <th class="table-secondary">GP%</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><label for="">{{1231231}}</label></td>
+                    <td><label for="">{{1231231}}</label></td>
+                    <td><label for="">{{1231231}}</label></td>
+                    <td><label for="">{{1231231}}</label></td>
+                </tr>
+            </tbody>
+        </table>
+        <hr />
+
+        @*Set Price*@
+
+        <table class="table table-bordered caption-top">
+            <caption>
+                Set the Price
+            </caption>
+            <thead>
+                <tr>
+                    <th class="table-secondary">Model</th>
+                    <th class="table-secondary">Price</th>
+                    <th class="table-secondary">New Price</th>
+                    <th class="table-secondary">Set New Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <select name="" id="">
+                            <option value="">{{1}}</option>
+                            <option value="">{{2}}</option>
+                        </select>
+                    </td>
+                    <td><label for="">1231231</label></td>
+                    <td><input type="number" min="0.01" step="0.01" /></td>
+                    <td><button>Set</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    const vm = Vue.createApp({
+        data() {
+            return {
+                localRouter: "",
+                product: {
+                    model: "",
+                    watt: "",
+                    name: "",
+                    price: "",
+                    cost: "",
+                },
+                products: [],
+                productList: [],
+                selectProduct: {
+                    ModelGroup:"",
+                    ModelName:"",
+                    Watt:"",
+                    Price:"",
+                    Cost:0,
+                    qty: "",
+                    targetGP: "",
+                    isChecked: true
+                },
+                result: "",
+            }
+        },
+        async created() {
+            this.localRouter = await window.location.pathname;
+            console.log(this.localRouter);
+
+        },
+        mounted() {
+            //this.localRouter = window.location.pathname;
+
+            this.getData();
+        },
+        methods: {
+            removeProduct(index) {
+                this.productList.splice(index, 1)
+            },
+            async getData() {
+                var _this = this;
+                let result = await $axiosPost(this.localRouter + "?handler=GetData");
+                console.log(result)
+                //_this.product.model=result.Model
+                this.products = result;
+                console.log(this.products)
+            },
+            add() {
+                var _this = this
+                let newSelect = _this.selectProduct
+                _this.productList.push(newSelect)
+            },
+            filter(value) {
+                let realVal = "";
+                realVal = parseFloat(value).toFixed(2)
+                return realVal;
+            },
+            toggle() {
+                this.selectProduct.isChecked = !this.selectProduct.isChecked
+            }
+
+        },
+
+
+
+    });
+    vm.mount("#root");
+
+</script>
