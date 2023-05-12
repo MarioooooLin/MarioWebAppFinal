@@ -25,7 +25,7 @@
                             </select>
                         </td>
                         <td>
-                            <input type="number" min="1" v-model="selectProduct.qty" />
+                            <input type="number" min="1" v-model="selectProduct.qty" @@change="checkQTY"/>
                         </td>
                         <td>
                             <div class="form-check">
@@ -36,7 +36,7 @@
                                        value="sellingPrice"
                                        v-model="seleRadio"
                                        checked />
-                                <input type="number" name="count" id="sellingPrice" min="0.01" step="0.01" v-bind:disabled="seleRadio==='targetGP'" v-model="selectProduct.price" />
+                                <input type="number" name="count" id="sellingPrice" v-bind:disabled="seleRadio==='targetGP'" v-model="selectProduct.price" @@change="checkPRICE" />
                             </div>
                         </td>
                         <td>
@@ -47,7 +47,7 @@
                                        value="targetGP"
                                        v-model="seleRadio"
                                        class="form-check-input" />
-                                <input type="number" name="count" id="targetGP" v-model="selectProduct.GPpercent" v-bind:disabled="seleRadio==='sellingPrice'" min="0.01" step="0.01" />
+                                <input type="number" name="count" id="targetGP" v-model="selectProduct.GPpercent" v-bind:disabled="seleRadio==='sellingPrice'" @@change="checkGP"/>
                                 %
                             </div>
                         </td>
@@ -83,7 +83,7 @@
             <tbody>
                 <tr v-for="(p,index) in productList" :key="index">
                     <td><label for="">{{p.modelName}}</label></td>
-                    <td><input type="checkbox" name="" id="" :value="p.modelName" v-model="seleCheck" v-on:click="changeCheck(index)" /><input type="number" v-model="p.qty" v-bind:disabled="p.checkB==='1'" /><button v-bind:disabled="p.checkB==='1'" @@click="changeQty(index)">Change</button></td>
+                    <td><input type="checkbox" name="" id="" :value="p.modelName" v-model="productList[index].seleCheck" v-on:click="changeCheck(index)" /><input type="number" v-model="p.qty" v-bind:disabled="p.checkB==='1'" ><button v-bind:disabled="p.checkB==='1'" @@click="changeQty(index)">Change</button></td>
 
                     <!-- Modal -->
                     <td><button class="'p.qty'+1" data-bs-toggle="modal" data-bs-target="#productModal" @@click="getPhoto(index)">View</button></td>
@@ -176,7 +176,6 @@
                 product: [],
                 productList: [],
                 seleRadio: "sellingPrice",
-                seleCheck: "",
                 setProduct: "",
                 setPrice: "",
                 newPrice: "",
@@ -190,7 +189,7 @@
                 photoWatt: "",
                 imgSrc: "",
                 selectProduct: {
-                    //seleRadio: "sellingPrice",
+                    seleCheck: "",
                     modelName: "",
                     qty: "",
                     price: "",
@@ -272,9 +271,11 @@
                 //var _this = this
                 if (this.selectProduct.modelName === "" || this.selectProduct.qty===""){
                     alert("請選擇產品並輸入數量")
-                } else if (this.seleRadio === "targetGP" && this.selectProduct.GPpercent===""){
+                }
+                else if (this.seleRadio === "targetGP" && this.selectProduct.GPpercent===""){
                     alert("請輸入目標利潤")
-                } else {
+                } 
+                else {
                     if (this.seleRadio === 'sellingPrice') {
                         this.selectProduct.GPpercent = 0;
                         this.selectProduct.unitGP = this.selectProduct.price - this.selectProduct.cost
@@ -296,8 +297,6 @@
 
                     }
                 }
-
-
             },
             async getPriceCost() {
                 var _this = this;
@@ -339,9 +338,11 @@
                 this.productList[index].subPrice = this.productList[index].price * this.productList[index].qty;
                 this.productList[index].subCost = this.productList[index].cost * this.productList[index].qty;
                 this.productList[index].subGP = (this.productList[index].price * this.productList[index].qty) - (this.productList[index].cost * this.productList[index].qty)
-                //this.seleCheck=false
+                this.productList[index].seleCheck = false
+                this.productList[index].checkB="1"
             },
             changeCheck(index) {
+                let tempQTY = this.productList[index].qty
                 if (this.productList[index].checkB == '1') {
                     this.productList[index].checkB = '0'
                 } else {
@@ -366,7 +367,37 @@
                 let result = await $axiosPost(this.localRouter + "?handler=GetNewPrice", fd)
                 console.log(result)
                 this.setPrice = result[0];
+            },
+            checkQTY(){
+                const QTY = this.selectProduct.qty;
+                const regex = /^[1-9]\d*$/;
+                const isValid = regex.test(QTY);
+
+                if (!isValid) {
+                    alert("請輸入正整數")
+                }
+            }, 
+            checkPRICE() {
+                const PRICE = this.selectProduct.price;
+                const regex = /^[1-9]\d*$/;
+                const isValid = regex.test(PRICE);
+
+                if (!isValid) {
+                    alert("請輸入正整數")
+                }
+            },
+
+            checkGP() {
+                const GP = this.selectProduct.GPpercent;
+                const regex = /^(?:100|\d{1,2})$/;
+                const isValid = regex.test(GP);
+
+                if (!isValid) {
+                    alert("不可大於等於100且不可包含小數點")
+                    this.selectProduct.GPpercent=''
+                }
             }
+
         },
 
 
