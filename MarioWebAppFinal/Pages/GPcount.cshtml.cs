@@ -43,7 +43,7 @@ namespace MarioWebAppFinal.Pages
             var sql = "select Price from ProductData where ModelName=@name";
             using (var con = new SqlConnection(conn.RookieServerContext))
             {
-                var result = con.Query<string>(sql, new
+                var result = con.Query<Product>(sql, new
                 {
                     name=modelName
                 }).ToList();

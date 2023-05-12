@@ -281,7 +281,7 @@
                 let fd=new FormData();
                 fd.append("modelName", this.selectProduct.ModelName)
                 let result = await $axiosPost(this.localRouter + "?handler=GetPrice",fd);
-                console.log(typeof result)
+                console.log(result)
                 //var newRES=JSON.stringify(result)
                 //console.log(typeof newRES)
                 //var new1=Number(newRES)

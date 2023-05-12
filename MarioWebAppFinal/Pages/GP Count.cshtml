@@ -20,23 +20,23 @@
                 <tbody>
                     <tr>
                         <td>
-                            <select name="product" id="product">
-                                <option value="">Product 1</option>
-                                <option value="">Product 2</option>
+                            <select name="product" id="product" v-model="selectProduct.modelName">
+                                <option :value="p" v-for="p in product">{{p}}</option>
                             </select>
                         </td>
                         <td>
-                            <input type="number" min="1" />
+                            <input type="number" min="1" v-model="selectProduct.qty" />
                         </td>
                         <td>
                             <div class="form-check">
                                 <input type="radio"
                                        name="price_option"
                                        id="price_option_fixed"
+                                       class="form-check-input"
                                        value="sellingPrice"
-                                       class="form-check-input" />
-                                <!-- <label class="form-check-label" for="price_option_fixed">Fixed Price</label> -->
-                                <input type="number" name="count" id="sellingPrice" />
+                                       v-model="seleRadio"
+                                       checked />
+                                <input type="number" name="count" id="sellingPrice" min="0.01" step="0.01" v-bind:disabled="seleRadio==='targetGP'" v-model="selectProduct.price" />
                             </div>
                         </td>
                         <td>
@@ -45,49 +45,17 @@
                                        name="price_option"
                                        id="price_option_percent"
                                        value="targetGP"
+                                       v-model="seleRadio"
                                        class="form-check-input" />
-                                <!-- <label class="form-check-label" for="price_option_percent">Percentage</label> -->
-                                <input type="number" name="count" id="targetGP" />
-                                <span>%</span>
+                                <input type="number" name="count" id="targetGP" v-model="selectProduct.GPpercent" v-bind:disabled="seleRadio==='sellingPrice'" min="0.01" step="0.01" />
+                                %
                             </div>
                         </td>
                     </tr>
                 </tbody>
 
-                <!-- <tbody>
-                    <tr>
-                        <td>
-                            <select name="" id="">
-                                <option value="">{{1}}</option>
-                                <option value="">{{2}}</option>
-                            </select>
-                        </td>
-                        <td><input type="number" min="1" /></td>
-                        <div class="form-check">
-                            <td>
-                                <input
-                                    type="radio"
-                                    name=""
-                                    id=""
-                                    class="form-check-input"
-                                    name="Price"
-                                    id="Price"
-                                /><input type="number" for="Price" />
-                            </td>
-                        </div>
-                        <div class="form-check">
-                            <td>
-                                <input type="radio" name="" id="" name="GP" id="GP" /><input
-                                    type="number"
-                                    class="form-check-input"
-                                    for="GP"
-                                /><span>%</span>
-                            </td>
-                        </div>
-                    </tr>
-                </tbody> -->
             </table>
-            <button>Add</button>
+            <button type="button" @@click="add">Add</button>
         </form>
         <hr />
         <table class="table table-bordered caption-top mr-3">
@@ -103,7 +71,7 @@
                     <th rowspan="2" class="table-secondary">Product Cost</th>
                     <th rowspan="2" class="table-secondary">Unit GP</th>
                     <th rowspan="2" class="table-secondary">GP%</th>
-                    <th colspan="3" class="table-secondary">Total</th>
+                    <th colspan="3" class="table-secondary">Sub Total</th>
                     <th rowspan="2" class="table-secondary">Delete</th>
                 </tr>
                 <tr>
@@ -113,20 +81,24 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td><label for="">FOCUS GX-850W</label></td>
-                    <td><input type="checkbox" name="" id="" /><input type="text" /><button>Change</button></td>
-                    <td><button class="" data-bs-toggle="modal" data-bs-target="#productModal">View</button></td>
+                <tr v-for="(p,index) in productList" :key="index">
+                    <td><label for="">{{p.modelName}}</label></td>
+                    <td><input type="checkbox" name="" id="" :value="p.modelName" v-model="seleCheck" v-on:click="changeCheck(index)" /><input type="number" v-model="p.qty" v-bind:disabled="p.checkB==='1'" /><button v-bind:disabled="p.checkB==='1'" @@click="changeQty(index)">Change</button></td>
+
                     <!-- Modal -->
+                    <td><button class="'p.qty'+1" data-bs-toggle="modal" data-bs-target="#productModal" @@click="getPhoto(index)">View</button></td>
                     <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                                    <h5 class="modal-title" id="exampleModalLabel">Product Information</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    ...
+                                    Model Name: {{photoName}}<br />
+                                    Model Group: {{photoGroup}}<br />
+                                    Model Watt: {{photoWatt}}<br />
+                                    <img :src="imgSrc" style="" class="img-fluid" />
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -135,66 +107,64 @@
                         </div>
                     </div>
                     @*Above is Modal*@
-                    <td><label>{{1111111}}</label></td>
-                    <td>{{1111111}}</td>
-                    <td>{{11111}}</td>
-                    <td>1111%</td>
-                    <td><input type="number" /></td>
-                    <td><input type="number" /></td>
-                    <td><input type="number" /></td>
-                    <td><button>Delete</button></td>
+
+                    <td>{{filter(p.price)}}</td>
+                    <td>{{filter(p.cost)}}</td>
+                    <td>{{filter(p.unitGP)}}</td>
+                    <td>{{filter(p.GPpercent)}}%</td>
+                    <td> {{filter(p.subPrice)}}</td>
+                    <td> {{filter(p.subCost)}}</td>
+                    <td> {{filter(p.subGP)}}</td>
+                    <td><button @@click="removeProduct(index)">Delete</button></td>
                 </tr>
-            </tbody>
-        </table>
-        <hr />
-        <table class="table table-bordered caption-top">
-            <caption>
-                Project GP
-            </caption>
-            <thead>
-                <tr>
-                    <th class="table-secondary">Total Revenue</th>
-                    <th class="table-secondary">Total Cost</th>
-                    <th class="table-secondary">Total GP</th>
-                    <th class="table-secondary">GP%</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><label for="">{{1231231}}</label></td>
-                    <td><label for="">{{1231231}}</label></td>
-                    <td><label for="">{{1231231}}</label></td>
-                    <td><label for="">{{1231231}}</label></td>
-                </tr>
-            </tbody>
-        </table>
-        <hr />
-        <table class="table table-bordered caption-top">
-            <caption>
-                Set the Price
-            </caption>
-            <thead>
-                <tr>
-                    <th class="table-secondary">Model</th>
-                    <th class="table-secondary">Price</th>
-                    <th class="table-secondary">New Price</th>
-                    <th class="table-secondary">Set New Price</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>
-                        <select name="" id="">
-                            <option value="">{{1}}</option>
-                            <option value="">{{2}}</option>
-                        </select>
-                    </td>
-                    <td><label for="">1231231</label></td>
-                    <td><input type="number" min="0.01" step="0.01" /></td>
-                    <td><button>Set</button></td>
-                </tr>
-            </tbody>
-        </table>
+                <hr />
+                <table class="table table-bordered caption-top">
+                    <caption>
+                        Project GP
+                    </caption>
+                    <thead>
+                        <tr>
+                            <th class="table-secondary">Total Revenue</th>
+                            <th class="table-secondary">Total Cost</th>
+                            <th class="table-secondary">Total GP</th>
+                            <th class="table-secondary">GP%</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><label for="">{{filter(totalPrice)}}</label></td>
+                            <td><label for="">{{filter(totalCost)}}</label></td>
+                            <td><label for="">{{filter(totalGP)}}</label></td>
+                            <td><label for="">{{filter(totalGPpercent)}}%</label></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <hr />
+                <table class="table table-bordered caption-top">
+                    <caption>
+                        Set the Price
+                    </caption>
+                    <thead>
+                        <tr>
+                            <th class="table-secondary">Model</th>
+                            <th class="table-secondary">Price</th>
+                            <th class="table-secondary">New Price</th>
+                            <th class="table-secondary">Set New Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <select name="product" id="product" v-model="setProduct" @@change="getNewPrice">
+                                    <option :value="p" v-for="p in product">{{p}}</option>
+                                </select>
+                            </td>
+                            <td><label for="">{{setPrice}}</label></td>
+                            <td><input type="number" min="0.01" step="0.01" v-model="newPrice" /></td>
+                            <td><button type="button" @@click="set()">Set</button></td>
+                        </tr>
+                    </tbody>
+                </table>
     </div>
 </div>
 
@@ -203,40 +173,200 @@
         data() {
             return {
                 localRouter: "",
-                product:{
-                    model: "",
-                    watt:"",
-                    name:"",
-                    price:"",
-                    cost:"",
-                },
-                productList:[]
-
-                ,
-                selectProduct:{},
-                result:"",
+                product: [],
+                productList: [],
+                seleRadio: "sellingPrice",
+                seleCheck: "",
+                setProduct: "",
+                setPrice: "",
+                newPrice: "",
+                newQty: "",
+                tPrice: 0,
+                tCost: 0,
+                tGP: 0,
+                tGPpercent: 0,
+                photoName: "",
+                photoGroup: "",
+                photoWatt: "",
+                imgSrc: "",
+                selectProduct: {
+                    //seleRadio: "sellingPrice",
+                    modelName: "",
+                    qty: "",
+                    price: "",
+                    cost: "",
+                    GP: "",
+                    dis: true,
+                    subPrice: "",
+                    subCost: "",
+                    subGP: "",
+                    priceIn: true,
+                    gpIn: false,
+                    unitGP: "",
+                    GPpercent: '',
+                    checkB: '1'
+                }
             }
         },
         async created() {
             this.localRouter = await window.location.pathname;
             console.log(this.localRouter);
-            
+
         },
-        mounted(){
+        mounted() {
             this.getData();
         },
-        methods: {
-            async getData(){
-                var _this=this;
-                let result = await $axiosPost(this.localRouter + "?handler=GetData");
-                //_this.product.model=result.Model
-                this.result=result;
+        watch: {
+            'selectProduct.modelName'(n, o) {
+                if (n != "") {
+                    this.getPriceCost();
+                }
             },
-            add(){
-                var _this=this
-                this.productList.push(this.selectProduct)
+            'selectProduct.seleRadio'(n, o) {
+                if (n === 'targetGP') {
+                    this.selectProduct.gpIn = !this.selectProduct.gpIn
+                    this.selectProduct.priceIn = !this.selectProduct.priceIn
+                }
+            }
+        },
+        computed: {
+            totalPrice: function () {
+                this.tPrice = 0;
+                for (let i = 0; i < this.productList.length; i++) {
+                    this.tPrice += this.productList[i].subPrice;
+                }
+                return this.tPrice;
+            },
+            totalCost: function () {
+                this.tCost = 0;
+                for (let i = 0; i < this.productList.length; i++) {
+                    this.tCost += this.productList[i].subCost;
+                }
+                return this.tCost;
+            },
+            totalGP: function () {
+                this.tGP = 0;
+                for (let i = 0; i < this.productList.length; i++) {
+                    this.tGP += this.productList[i].subGP;
+                }
+                return this.tGP;
+            },
+            totalGPpercent: function () {
+                this.tGPpercent = Math.round(((this.totalPrice - this.totalCost) / this.totalPrice) * 100) / 100
+                if (this.totalPrice === 0) {
+                    this.tGPpercent = 0
+                }
+                return this.tGPpercent;
+
             }
 
+        },
+        methods: {
+            async getData() {
+                var _this = this;
+                let result = await $axiosPost(this.localRouter + "?handler=GetData");
+                //_this.product.model=result.Model
+                this.product = result;
+            },
+            add() {
+                //var _this = this
+                if (this.selectProduct.modelName === "" || this.selectProduct.qty===""){
+                    alert("請選擇產品並輸入數量")
+                } else if (this.seleRadio === "targetGP" && this.selectProduct.GPpercent===""){
+                    alert("請輸入目標利潤")
+                } else {
+                    if (this.seleRadio === 'sellingPrice') {
+                        this.selectProduct.GPpercent = 0;
+                        this.selectProduct.unitGP = this.selectProduct.price - this.selectProduct.cost
+                        this.selectProduct.GPpercent = ((this.selectProduct.price - this.selectProduct.cost) / this.selectProduct.price) * 100
+                        this.selectProduct.subPrice = this.selectProduct.price * this.selectProduct.qty
+                        this.selectProduct.subCost = this.selectProduct.cost * this.selectProduct.qty
+                        this.selectProduct.subGP = (this.selectProduct.subPrice - this.selectProduct.subCost)
+                        var newSelect = JSON.parse(JSON.stringify(this.selectProduct));
+                        this.productList.push(newSelect)
+                    } else {
+                        this.selectProduct.price = 0;
+                        this.selectProduct.price = this.selectProduct.cost / (1 - this.selectProduct.GPpercent / 100)
+                        this.selectProduct.unitGP = this.selectProduct.price - this.selectProduct.cost
+                        this.selectProduct.subPrice = this.selectProduct.price * this.selectProduct.qty
+                        this.selectProduct.subCost = this.selectProduct.cost * this.selectProduct.qty
+                        this.selectProduct.subGP = (this.selectProduct.subPrice - this.selectProduct.subCost)
+                        var newGPSelect = JSON.parse(JSON.stringify(this.selectProduct));
+                        this.productList.push(newGPSelect)
+
+                    }
+                }
+
+
+            },
+            async getPriceCost() {
+                var _this = this;
+                let fd = new FormData();
+                fd.append("modelName", this.selectProduct.modelName)
+                let result = await $axiosPost(this.localRouter + "?handler=GetPriceCost", fd);
+                console.log(result)
+                console.log(typeof result)
+                console.log(result[0].Cost)
+                _this.selectProduct.cost = result[0].Cost
+                _this.selectProduct.price = result[0].Price
+            },
+            removeProduct(index) {
+                this.productList.splice(index, 1)
+            },
+            filter(value) {
+                let realVal = "";
+                realVal = parseFloat(value).toFixed(2)
+                return realVal;
+            },
+            toggle() {
+                this.selectProduct.dis = !this.selectProduct.dis
+            },
+            async set() {
+                var _this = this;
+                let fd = new FormData();
+                fd.append("modelName", this.setProduct)
+                fd.append("newPrice", this.newPrice)
+                let result = await $axiosPost(this.localRouter + "?handler=SetPrice", fd);
+                if (result.result == 1) {
+                    alert("更新成功")
+                    this.getNewPrice()
+                    this.newPrice = ''
+                } else {
+                    alert("更新失敗")
+                }
+            },
+            changeQty(index) {
+                this.productList[index].subPrice = this.productList[index].price * this.productList[index].qty;
+                this.productList[index].subCost = this.productList[index].cost * this.productList[index].qty;
+                this.productList[index].subGP = (this.productList[index].price * this.productList[index].qty) - (this.productList[index].cost * this.productList[index].qty)
+                //this.seleCheck=false
+            },
+            changeCheck(index) {
+                if (this.productList[index].checkB == '1') {
+                    this.productList[index].checkB = '0'
+                } else {
+                    this.productList[index].checkB = '1'
+                }
+            },
+            async getPhoto(index) {
+                let fd = new FormData();
+                fd.append("Product", this.productList[index].modelName)
+                let result = await $axiosPost(this.localRouter + "?handler=GetModal", fd);
+                console.log(result)
+                let photoName = result[0].ModelName
+                this.photoName = result[0].ModelName
+                this.photoGroup = result[0].ModelGroup
+                this.photoWatt = result[0].Watt
+                this.imgSrc = `/images/${photoName}.jpg`;
+
+            },
+            async getNewPrice() {
+                let fd = new FormData();
+                fd.append("Name", this.setProduct)
+                let result = await $axiosPost(this.localRouter + "?handler=GetNewPrice", fd)
+                console.log(result)
+                this.setPrice = result[0];
+            }
         },
 
 

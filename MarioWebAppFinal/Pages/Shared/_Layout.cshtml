@@ -18,6 +18,8 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/MarioWebAppFinal.styles.css" asp-append-version="true" />
+
+    
 </head>
 <body>
     <header>
@@ -37,10 +39,16 @@
                             <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/GPcount">GP_count</a>
+                            <a class="nav-link text-dark" asp-area="" asp-page="/GPcount">GP_count(X)</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-page="/GP count">GP Count</a>
+                        </li>
+
                     </ul>
                 </div>
+
+                @*<img src="~/images/FOCUS GX-850W.jpg"/>*@
                 <form method="post">
                     @Html.AntiForgeryToken()
                     <!-- ... -->
