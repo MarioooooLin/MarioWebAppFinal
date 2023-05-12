@@ -51,8 +51,7 @@ namespace MarioWebAppFinal.Pages
                 //results.Add("price", result);
                 return new JsonResult(result);
             }
-           
-
+          
         }
 
         public IActionResult OnPostGetPriceCost(IFormCollection collection)
@@ -77,6 +76,7 @@ namespace MarioWebAppFinal.Pages
             var conn = new DapperConnections.ConnectionOptions();
             Configuration.GetSection(DapperConnections.ConnectionOptions.Position).Bind(conn);
             var sql = @"select * from ProductData where ModelName=@name";
+                        //select * from ProductCost where ModelName=@name";
             using (var con = new SqlConnection(conn.RookieServerContext))
             {
                 var result = con.Query<Product>(sql, new
@@ -115,6 +115,9 @@ namespace MarioWebAppFinal.Pages
 
             return new JsonResult(result);
         }
+
+        //寫一個方法可儲存所有SQL語法，其他方法需要時可傳參數去呼叫出來
+
 
 
         //public IActionResult OnPostGetCost()

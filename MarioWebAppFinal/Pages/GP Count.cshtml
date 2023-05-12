@@ -160,7 +160,7 @@
                                 </select>
                             </td>
                             <td><label for="">{{setPrice}}</label></td>
-                            <td><input type="number" min="0.01" step="0.01" v-model="newPrice" /></td>
+                            <td><input type="number" @@change="checkPRICE" v-model="newPrice" /></td>
                             <td><button type="button" @@click="set()">Set</button></td>
                         </tr>
                     </tbody>
@@ -251,7 +251,7 @@
                 return this.tGP;
             },
             totalGPpercent: function () {
-                this.tGPpercent = Math.round(((this.totalPrice - this.totalCost) / this.totalPrice) * 100) / 100
+                this.tGPpercent = ((this.totalPrice - this.totalCost) / this.totalPrice) * 100
                 if (this.totalPrice === 0) {
                     this.tGPpercent = 0
                 }
@@ -269,6 +269,7 @@
             },
             add() {
                 //var _this = this
+                var Product=this.selectProduct
                 if (this.selectProduct.modelName === "" || this.selectProduct.qty===""){
                     alert("請選擇產品並輸入數量")
                 }
@@ -297,6 +298,10 @@
 
                     }
                 }
+                this.selectProduct.modelName=""
+                this.selectProduct.qty = ""
+                this.selectProduct.price = ""
+                this.selectProduct.GPpercent = ""
             },
             async getPriceCost() {
                 var _this = this;
@@ -330,6 +335,8 @@
                     alert("更新成功")
                     this.getNewPrice()
                     this.newPrice = ''
+                    this.selectProduct.price=''
+                    this.selectProduct.modelName=''
                 } else {
                     alert("更新失敗")
                 }
@@ -374,7 +381,7 @@
                 const isValid = regex.test(QTY);
 
                 if (!isValid) {
-                    alert("請輸入正整數")
+                    alert("數量請輸入正整數")
                 }
             }, 
             checkPRICE() {
@@ -383,7 +390,7 @@
                 const isValid = regex.test(PRICE);
 
                 if (!isValid) {
-                    alert("請輸入正整數")
+                    alert("價格請輸入正整數")
                 }
             },
 
@@ -393,7 +400,7 @@
                 const isValid = regex.test(GP);
 
                 if (!isValid) {
-                    alert("不可大於等於100且不可包含小數點")
+                    alert("GP不可大於等於100且不可包含小數點")
                     this.selectProduct.GPpercent=''
                 }
             }
